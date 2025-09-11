@@ -50,7 +50,7 @@ jobs:
       - uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ matrix.msystem }}
-          install: git python base-devel
+          install: git python base-devel gnupg
           update: true
           location: '${{ steps.facts.outputs.drive }}\M'
 
@@ -59,6 +59,15 @@ jobs:
         run: |
           cp /etc/pacman.conf /etc/pacman.conf.bak
           grep -qFx '[staging]' /etc/pacman.conf || sed -i '/^# \[staging\]/,/^$/ s|^# ||g' /etc/pacman.conf
+          cat /etc/pacman.conf
+          cd /etc/pacman.d
+          ls
+          for enviro in clang64 mingw mingw32 mingw64 msys ucrt64; do
+            echo "[$enviro]"
+            cat mirrorlist.$enviro
+            echo ""
+          done
+
 
       - name: Update using staging
         run: |
