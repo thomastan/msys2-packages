@@ -54,14 +54,16 @@ jobs:
           update: true
           location: '${{ steps.facts.outputs.drive }}\M'
 
-      - name: Fix MSYS2 keyring and crypto engine
+      - name: Fix and verify keyring
         shell: msys2 {0}
         run: |
+          ls -l /etc/pacman.d
           pacman -Sy --noconfirm msys2-keyring gnupg
           rm -rf /etc/pacman.d/gnupg
           pacman-key --init
           pacman-key --populate msys2
           pacman -Syyu --noconfirm
+          pacman -S --noconfirm ncurses-devel
 
       - name: Add staging repo
         shell: msys2 {0}
