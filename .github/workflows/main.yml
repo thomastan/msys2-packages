@@ -98,6 +98,12 @@ jobs:
           cd "$(cygpath '${{ steps.facts.outputs.drive }}/_')"
           ./.ci/ci-build.sh
 
+      - name: Update package database
+        shell: msys2 {0}
+        run: |
+          cd "$(cygpath '${{ steps.facts.outputs.drive }}/_/artifacts')"
+          repo-add msys2.db.tar.gz *.pkg.tar.zst
+
       - name: "Upload binaries"
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
