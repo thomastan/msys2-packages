@@ -79,6 +79,7 @@ build() {
 
 package_ncurses() {
   depends=('gcc-libs')
+  conflicts=("ncurses-devel<${pkgver}")
 
   mkdir -p ${pkgdir}/usr
   cp -rf $srcdir/dest/usr/bin ${pkgdir}/usr/
