@@ -71,6 +71,42 @@ jobs:
           If (Test-Path "$path") { rm -r -fo "$path" }
           Move-Item -Path ".\temp" -Destination "$path"
 
+      - name: Configure GPG and Pacman Keys
+        shell: msys2 {0}
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PUBLIC_KEY: ${{ secrets.GPG_PUBLIC_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GPG_KEYID: BC4C2EC34EB6CBEA
+          YOUR_NAME: "Thomas Tan"
+          YOUR_EMAIL: "email@domain.com"
+        run: |
+          set -e
+          echo "--- 1. Importing GPG private key from variable and exported public key to file ---"
+          gpg --batch --import <<< $GPG_PRIVATE_KEY
+          gpg --export --armor $GPG_KEYID > public_key.asc
+          echo "--- (1, complete): exported GPG public key to file ---"
+
+          echo "--- 2. Testing signing of public key in pacman's keyring ---"
+          gpg --batch --yes \
+            --pinentry-mode loopback \
+            --passphrase "$GPG_PASSPHRASE" \
+            --output test.asc \
+            --clearsign <<< "test"
+          echo "--- (2, complete): tested signing of public key in pacman's keyring ---"
+
+          echo "--- 3. Adding public key and signing it in pacman's keyring ---"
+          pacman-key --add public_key.asc
+          pacman-key --lsign-key "$GPG_KEYID"
+          echo "--- (3, complete): locally signed public key in pacman's keyring ---"
+
+          echo "--- 4. Check makepkg.conf ---"
+          if [[ -f /etc/makepkg.conf ]]; then echo "/etc/makepkg.conf exists:"; else echo "/etc/makepkg.conf does not exist."; fi
+          if [[ -f ~/.makepkg.conf ]]; then echo "~/makepkg.conf exists:"; cat ~/.makepkg.conf; else echo "~/makepkg.conf does not exist."; fi
+          echo "--- (4, complete): checked makepkg.conf ---"
+
+          echo "--- (GPG key stuff complete) ---"
+
       - name: CI-Build
         shell: msys2 {0}
         id: build

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -eo pipefail
+shopt -s extglob
 
 # AppVeyor and Drone Continuous Integration for MSYS2
 # Author: Renato Silva <br.renatosilva@gmail.com>
@@ -90,8 +91,8 @@ for package in "${packages[@]}"; do
     echo "::group::[build] ${package}"
     execute 'Clear cache' pacman -Scc --noconfirm
     execute 'Fetch keys' "$DIR/fetch-validpgpkeys.sh"
-    execute 'Building binary' makepkg --noconfirm --noprogressbar --nocheck --syncdeps --rmdeps --cleanbuild
-    repo-add $PWD/artifacts/ci.db.tar.gz $PWD/$package/*.pkg.tar.*
+    execute 'Building binary' makepkg --noconfirm --noprogressbar --nocheck --syncdeps --rmdeps --cleanbuild --sign
+    repo-add -s -v $PWD/artifacts/ci.db.tar.gz $PWD/$package/*.pkg.tar.@(gz|bzip2|xz|7z|zst)
     pacman -Sy
     cp $PWD/$package/*.pkg.tar.* $PWD/artifacts
     echo "::endgroup::"
