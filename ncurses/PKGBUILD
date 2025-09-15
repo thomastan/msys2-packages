@@ -97,7 +97,7 @@ package_ncurses() {
 package_ncurses-devel() {
   groups=('development')
   options=('staticlibs')
-  depends=("ncurses=${pkgver}")
+  depends=("ncurses=${pkgver}-${pkgrel}")
   pkgdesc="NCURSES headers and libraries"
 
   mkdir -p ${pkgdir}/usr/bin
