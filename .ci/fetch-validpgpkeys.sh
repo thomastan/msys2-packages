@@ -16,4 +16,4 @@ for key in "${validpgpkeys[@]}"; do
     done
 done
 
-gpg --batch --import <<< $GPG_PRIVATE_KEY
+# gpg --batch --import <<< $GPG_PRIVATE_KEY
