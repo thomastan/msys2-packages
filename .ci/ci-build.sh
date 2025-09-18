@@ -92,8 +92,9 @@ for package in "${packages[@]}"; do
     echo "::group::[build] ${package}"
     execute 'Clear cache' pacman -Scc --noconfirm
     execute 'Fetch keys' "$DIR/fetch-validpgpkeys.sh"
-    execute 'Building binary' makepkg --noconfirm --noprogressbar --nocheck --syncdeps --rmdeps --cleanbuild --sign
-    repo-add -s -v $PWD/artifacts/ci.db.tar.gz $PWD/$package/*.pkg.tar.@(gz|bzip2|xz|7z|zst)
+    execute 'Building binary' makepkg --noconfirm --noprogressbar --nocheck --syncdeps --rmdeps --cleanbuild
+    # repo-add -s -v $PWD/artifacts/ci.db.tar.gz $PWD/$package/*.pkg.tar.@(gz|bzip2|xz|7z|zst)
+    repo-add -s -v $PWD/artifacts/ci.db.tar.gz $PWD/$package/*.pkg.tar.*
     message "*********Package was signed"
     pacman -Sy
     cp $PWD/$package/*.pkg.tar.* $PWD/artifacts
