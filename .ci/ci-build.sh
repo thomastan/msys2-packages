@@ -91,7 +91,7 @@ for package in "${packages[@]}"; do
     echo "::group::[build] ${package}"
     execute 'Clear cache' pacman -Scc --noconfirm
     execute 'Fetch keys' "$DIR/fetch-validpgpkeys.sh"
-    execute 'Building binary' makepkg --noconfirm --noprogressbar --nocheck --syncdeps --rmdeps --cleanbuild
+    execute 'Building binary' makepkg --noconfirm --noprogressbar --nocheck --syncdeps --rmdeps --cleanbuild --sign
     repo-add $PWD/artifacts/ci.db.tar.gz $PWD/$package/*.pkg.tar.@(gz|bz2|bzip2|xz|7z|zst)
     pacman -Sy
     cp $PWD/$package/*.pkg.tar.* $PWD/artifacts
@@ -104,12 +104,40 @@ for package in "${packages[@]}"; do
         grep -qFx "${package}" "$DIR/ci-dont-install-list.txt" || pacman --noprogressbar --upgrade --noconfirm $pkg
         echo "::endgroup::"
 
+
         echo "::group::[meta-diff] ${pkgname}"
+        if [[ $pkgname == "ncurses" ]]; then
+            message "Interrupting '$pkgname' meta-diff to fix gpgme"
+            # execute "Install gnupug"
+            pacman -S --noconfirm gnupg
+            # execute "Install gpg"
+            gpg --version
+            # execute "List keys"
+            gpg --list-secret-keys
+            # execute "Inspect /etc/pacman.conf"
+            cat /etc/pacman.conf
+            message "gpg done"
+        fi
+
         message "Package info diff for ${pkgname}"
         diff -Nur <(pacman -Si ${MSYSTEM,,}/"${pkgname}") <(pacman -Qip "${pkg}") || true
         echo "::endgroup::"
 
+
         echo "::group::[file-diff] ${pkgname}"
+
+        if [[ $pkgname == "ncurses" ]]; then
+            message "Interrupting '$pkgname' file-diff to fix gpgme"
+            # execute "Install gnupug"
+            pacman -S --noconfirm gnupg
+            # execute "Install gpg"
+            gpg --version
+            # execute "List keys"
+            gpg --list-secret-keys
+            # execute "Inspect /etc/pacman.conf"
+            message "gpg done"
+        fi
+
         message "File listing diff for ${pkgname}"
         diff -Nur <(pacman -Fl ${MSYSTEM,,}/"$pkgname" | sed -e 's|^[^ ]* |/|' | sort) <(pacman -Ql "$pkgname" | sed -e 's|^[^/]*||' | sort) || true
         echo "::endgroup::"

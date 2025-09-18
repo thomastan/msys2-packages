@@ -74,7 +74,51 @@ jobs:
       - name: CI-Build
         shell: msys2 {0}
         id: build
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GPG_KEYID: BC4C2EC34EB6CBEA
+          GPG_PUBLIC_KEY: ${{ secrets.GPG_PUBLIC_KEY }}
+          YOUR_NAME: "Thomas Tan"
+          YOUR_EMAIL: "email@domain.com"
         run: |
+          set -e
+          echo "--- 1. Importing GPG private key from variable ---"
+          gpg --batch --import <<< $GPG_PRIVATE_KEY
+          echo "--- (1, complete): imported GPG public key from variable ---"
+
+          echo "--- 2. Testing signing of public key in pacman's keyring ---"
+          gpg --batch --yes \
+            --pinentry-mode loopback \
+            --passphrase "$GPG_PASSPHRASE" \
+            --output test.asc \
+            --clearsign <<< "test"
+          echo "--- (2, complete): tested signing of public key in pacman's keyring ---"
+
+          echo "--- 3. Adding public key and signing it in pacman's keyring ---"
+          gpg --export --armor $GPG_KEYID | pacman-key --add <(cat)
+          pacman-key --lsign-key "$GPG_KEYID"
+          echo "--- (3, complete): locally signed public key in pacman's keyring ---"
+
+          echo "--- 4. Check {,.}makepkg.conf ---"
+          if [[ -f ~/.makepkg.conf ]]; then
+            echo "~/.makepkg.conf exists:"
+            cat ~/.makepkg.conf
+          else
+            echo "~/.makepkg.conf does not exist."
+            if [[ -f /etc/makepkg.conf ]]; then
+              echo "but fallback /etc/makepkg.conf exists:"
+              cat /etc/makepkg.conf
+            fi
+          fi
+          echo "--- (4, complete): checked {,.}makepkg.conf ---"
+
+          echo "--- 5. Opt into package signing ---"
+          echo "GPGKEY=$GPG_KEYID" >> /etc/makepkg.conf
+          echo "Revised {,.}makepkg.conf lines:"
+          cat /etc/makepkg.conf | grep -E 'GPGKEY'
+          echo "--- (5, complete): opt into package signing ---"
+
           cd "$(cygpath '${{ steps.facts.outputs.drive }}/_')"
           ./.ci/ci-build.sh
 
