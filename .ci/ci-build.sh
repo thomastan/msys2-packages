@@ -76,7 +76,8 @@ test -z "${packages}" && success 'No changes in package recipes'
 message 'Building packages' "${packages[@]}"
 
 message 'Adding an empty local repository'
-repo-add -s -v $PWD/artifacts/ci.db.tar.gz
+repo-add -v $PWD/artifacts/ci.db.tar.gz
+message "Added an empty local repository"
 sed -i '1s|^|[ci]\nServer = file://'"$PWD"'/artifacts/\nSigLevel = Never\n|' /etc/pacman.conf
 pacman -Sy
 
@@ -93,7 +94,7 @@ for package in "${packages[@]}"; do
     execute 'Fetch keys' "$DIR/fetch-validpgpkeys.sh"
     execute 'Building binary' makepkg --noconfirm --noprogressbar --nocheck --syncdeps --rmdeps --cleanbuild --sign
     repo-add -s -v $PWD/artifacts/ci.db.tar.gz $PWD/$package/*.pkg.tar.@(gz|bzip2|xz|7z|zst)
-    echo "*********Package was signed"
+    message "*********Package was signed"
     pacman -Sy
     cp $PWD/$package/*.pkg.tar.* $PWD/artifacts
     echo "::endgroup::"
