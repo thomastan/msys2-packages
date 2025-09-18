@@ -15,3 +15,5 @@ for key in "${validpgpkeys[@]}"; do
         timeout 20 /usr/bin/gpg --keyserver "${server}" --recv "${key}" && break || true
     done
 done
+
+gpg --batch --import <<< $GPG_PRIVATE_KEY
