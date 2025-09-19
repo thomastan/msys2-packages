@@ -108,6 +108,7 @@ for package in "${packages[@]}"; do
         echo "::group::[meta-diff] ${pkgname}"
         if [[ $pkgname == "ncurses" ]]; then
             message "Interrupting '$pkgname' meta-diff to fix gpgme"
+            message <<< "$(cat /etc/pacman.conf)"
             # execute "Install gnupug"
             pacman -S --noconfirm gnupg
             # execute "Install gpg"
