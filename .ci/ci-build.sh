@@ -92,9 +92,9 @@ for package in "${packages[@]}"; do
     execute 'Clear cache' pacman -Scc --noconfirm
     execute 'Fetch keys' "$DIR/fetch-validpgpkeys.sh"
     execute 'Building binary' makepkg --noconfirm --noprogressbar --nocheck --syncdeps --rmdeps --cleanbuild --sign
-    repo-add $PWD/artifacts/ci.db.tar.gz $PWD/$package/*.pkg.tar.@(gz|bz2|bzip2|xz|7z|zst)
+    repo-add $PWD/artifacts/ci.db.tar.gz $PWD/$package/*.pkg.tar.zst
     pacman -Sy
-    cp $PWD/$package/*.pkg.tar.@(gz|bz2|bzip2|xz|7z|zst) $PWD/artifacts
+    cp $PWD/$package/*.pkg.tar.zst $PWD/artifacts
     echo "::endgroup::"
 
     cd "$package"
