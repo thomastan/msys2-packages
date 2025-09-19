@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set -eo pipefail
+set -e
+set -x
 shopt -s extglob
 
 # AppVeyor and Drone Continuous Integration for MSYS2
@@ -112,11 +113,12 @@ for package in "${packages[@]}"; do
             # execute "Install gnupug"
             pacman -S --noconfirm gnupg
             # execute "Install gpg"
-            gpg --version
+            TXTOUT=$(gpg --version)
+            message "$TXTOUT"
             # execute "List keys"
-            gpg --list-secret-keys
+            TXTOUT=$(gpg --list-secret-keys)
+            message "$TXTOUT"
             # execute "Inspect /etc/pacman.conf"
-            cat /etc/pacman.conf
             message "gpg done"
         fi
 
