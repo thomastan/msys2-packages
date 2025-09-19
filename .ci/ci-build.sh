@@ -94,7 +94,7 @@ for package in "${packages[@]}"; do
     execute 'Building binary' makepkg --noconfirm --noprogressbar --nocheck --syncdeps --rmdeps --cleanbuild --sign
     repo-add $PWD/artifacts/ci.db.tar.gz $PWD/$package/*.pkg.tar.@(gz|bz2|bzip2|xz|7z|zst)
     pacman -Sy
-    cp $PWD/$package/*.pkg.tar.* $PWD/artifacts
+    cp $PWD/$package/*.pkg.tar.@(gz|bz2|bzip2|xz|7z|zst) $PWD/artifacts
     echo "::endgroup::"
 
     cd "$package"
