@@ -98,7 +98,7 @@ for package in "${packages[@]}"; do
     echo "::endgroup::"
 
     cd "$package"
-    for pkg in *.pkg.tar.*; do
+    for pkg in *.pkg.tar.zst; do
         pkgname="$(echo "$pkg" | rev | cut -d- -f4- | rev)"
         echo "::group::[install] ${pkgname}"
         grep -qFx "${package}" "$DIR/ci-dont-install-list.txt" || pacman --noprogressbar --upgrade --noconfirm $pkg
