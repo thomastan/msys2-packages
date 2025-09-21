@@ -113,7 +113,7 @@ for package in "${packages[@]}"; do
             message <<< "$(cat /etc/pacman.conf)"
             # execute "Install gnupug"
             pacman -S --noconfirm gnupg
-            TXTOUT=$(which gpg)
+            TXTOUT="$(which gpg)"
             message "$TXTOUT"
             # execute "Install gpg"
             TXTOUT=$(gpg --version)
