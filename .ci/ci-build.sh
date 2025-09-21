@@ -77,6 +77,7 @@ test -z "${packages}" && success 'No changes in package recipes'
 message 'Building packages' "${packages[@]}"
 
 message 'Adding an empty local repository'
+if [[ -z "$CI_BUILD" ]]; then
 repo-add $PWD/artifacts/ci.db.tar.gz
 sed -i '1s|^|[ci]\nServer = file://'"$PWD"'/artifacts/\nSigLevel = Never\n|' /etc/pacman.conf
 pacman -Sy
@@ -112,6 +113,8 @@ for package in "${packages[@]}"; do
             message <<< "$(cat /etc/pacman.conf)"
             # execute "Install gnupug"
             pacman -S --noconfirm gnupg
+            TXTOUT=$(which gpg)
+            message "$TXTOUT"
             # execute "Install gpg"
             TXTOUT=$(gpg --version)
             message "$TXTOUT"
