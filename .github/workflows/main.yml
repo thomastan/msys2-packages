@@ -127,7 +127,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.msystem }}-packages
-          path: ${{ steps.facts.outputs.drive }}/_/artifacts/*.pkg.tar.*
+          path: ${{ steps.facts.outputs.drive }}/_/artifacts/*
           if-no-files-found: ignore
 
   package-grokker:
