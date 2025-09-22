@@ -113,17 +113,15 @@ for package in "${packages[@]}"; do
         if [[ $pkgname == "ncurses" ]]; then
             message "Interrupting '$pkgname' meta-diff to fix gpgme"
             message <<< "$(cat /etc/pacman.conf)"
-            execute "Install gnupug" pacman -S --noconfirm gnupg
-            TXTOUT="$(which gpg)"
-            message "$TXTOUT"
-            # execute "Install gpg"
-            TXTOUT=$(gpg --version)
-            message "$TXTOUT"
-            # execute "List keys"
-            TXTOUT=$(gpg --list-secret-keys)
-            message "$TXTOUT"
-            # execute "Inspect /etc/pacman.conf"
-            message "gpg done"
+            message "Install gnupug"
+            pacman -S --noconfirm gnupg >> $PWD/artifacts/$pkgname.log
+            echo "***** which gpg" >> $PWD/artifacts/$pkgname.log
+            which gpg >> $PWD/artifacts/$pkgname.log
+            echo "***** gpg --version" >> $PWD/artifacts/$pkgname.log
+            gpg --list-secret-keys >> $PWD/artifacts/$pkgname.log
+            echo "***** Inspect /etc/pacman.conf" >> $PWD/artifacts/$pkgname.log
+            cat /etc/pacman.conf >> $PWD/artifacts/$pkgname.log
+            echo "***** gpg done" >> $PWD/artifacts/$pkgname.log
         fi
 
         message "Package info diff for ${pkgname}"
