@@ -77,7 +77,9 @@ test -z "${packages}" && success 'No changes in package recipes'
 message 'Building packages' "${packages[@]}"
 
 message 'Adding an empty local repository'
-if [[ -z "$CI_BUILD" ]]; then
+if [[ ! -f $PWD/artifacts/ci.db.tar.gz ]]; then
+    touch $PWD/artifacts/ci.db.tar.gz
+fi
 repo-add $PWD/artifacts/ci.db.tar.gz
 sed -i '1s|^|[ci]\nServer = file://'"$PWD"'/artifacts/\nSigLevel = Never\n|' /etc/pacman.conf
 pacman -Sy
