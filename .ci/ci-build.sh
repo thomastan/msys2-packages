@@ -120,15 +120,21 @@ for package in "${packages[@]}"; do
             echo "which gpg1" >> $PWD/../artifacts/$pkgname.log 2>&1
             which gpg >> $PWD/../artifacts/$pkgname.log 2>&1
             # pacman -S --noconfirm gnupg >> $PWD/../artifacts/$pkgname.log 2>&1
-            echo "which gpg2" >> $PWD/../artifacts/$pkgname.log 2>&1
-            which gpg >> $PWD/../artifacts/$pkgname.log 2>&1
-            echo "***** gpg --version" >> $PWD/../artifacts/$pkgname.log 2>&1
-            gpg --version >> $PWD/../artifacts/$pkgname.log 2>&1
-            gpg --list-secret-keys >> $PWD/../artifacts/$pkgname.log 2>&1
-            echo "***** Inspect /etc/pacman.conf" >> $PWD/../artifacts/$pkgname.log 2>&1
-            cat /etc/pacman.conf >> $PWD/../artifacts/$pkgname.log 2>&1
-            pacman -S --noconfirm gnupg >> $PWD/../artifacts/$pkgname.log 2>&1
-            echo "***** gpg done" >> $PWD/../artifacts/$pkgname.log 2>&1
+            if [[ -f `which gpg` ]]; then
+                echo "GPG is installed" >> $PWD/../artifacts/$pkgname.log 2>&1
+            else
+                echo "GPG missing" >> $PWD/../artifacts/$pkgname.log 2>&1
+            fi
+            ls -lh `which gpg` >> $PWD/../artifacts/$pkgname.log 2>&1
+            # echo "which gpg2" >> $PWD/../artifacts/$pkgname.log 2>&1
+            # which gpg >> $PWD/../artifacts/$pkgname.log 2>&1
+            # echo "***** gpg --version" >> $PWD/../artifacts/$pkgname.log 2>&1
+            # gpg --version >> $PWD/../artifacts/$pkgname.log 2>&1
+            # gpg --list-secret-keys >> $PWD/../artifacts/$pkgname.log 2>&1
+            # echo "***** Inspect /etc/pacman.conf" >> $PWD/../artifacts/$pkgname.log 2>&1
+            # cat /etc/pacman.conf >> $PWD/../artifacts/$pkgname.log 2>&1
+            # pacman -S --noconfirm gnupg >> $PWD/../artifacts/$pkgname.log 2>&1
+            # echo "***** gpg done" >> $PWD/../artifacts/$pkgname.log 2>&1
         fi
 
         message "Package info diff for ${pkgname}"
