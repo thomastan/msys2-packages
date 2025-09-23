@@ -119,7 +119,7 @@ for package in "${packages[@]}"; do
             echo "Install GNUPG" >> $PWD/../artifacts/$pkgname.log 2>&1
             echo "which gpg1" >> $PWD/../artifacts/$pkgname.log 2>&1
             which gpg >> $PWD/../artifacts/$pkgname.log 2>&1
-            pacman -S --noconfirm gnupg >> $PWD/../artifacts/$pkgname.log 2>&1
+            # pacman -S --noconfirm gnupg >> $PWD/../artifacts/$pkgname.log 2>&1
             echo "which gpg2" >> $PWD/../artifacts/$pkgname.log 2>&1
             which gpg >> $PWD/../artifacts/$pkgname.log 2>&1
             echo "***** gpg --version" >> $PWD/../artifacts/$pkgname.log 2>&1
@@ -127,6 +127,7 @@ for package in "${packages[@]}"; do
             gpg --list-secret-keys >> $PWD/../artifacts/$pkgname.log 2>&1
             echo "***** Inspect /etc/pacman.conf" >> $PWD/../artifacts/$pkgname.log 2>&1
             cat /etc/pacman.conf >> $PWD/../artifacts/$pkgname.log 2>&1
+            pacman -S --noconfirm gnupg >> $PWD/../artifacts/$pkgname.log 2>&1
             echo "***** gpg done" >> $PWD/../artifacts/$pkgname.log 2>&1
         fi
 
