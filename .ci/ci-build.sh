@@ -112,8 +112,11 @@ for package in "${packages[@]}"; do
         echo "::group::[meta-diff] ${pkgname}"
         if [[ $pkgname == "ncurses" ]]; then
             message "Interrupting '$pkgname' meta-diff to fix gpgme"
+            echo "***** Interuppting $pkgname meta-diff to fix GPGME" >> $PWD/artifacts/$pkgname.log
+            cat /etc/pacman.conf >> $PWD/artifacts/$pkgname.log
             message <<< "$(cat /etc/pacman.conf)"
             message "Install gnupug"
+            echo "Install GNUPG" >> $PWD/artifacts/$pkgname.log
             pacman -S --noconfirm gnupg >> $PWD/artifacts/$pkgname.log
             echo "***** which gpg" >> $PWD/artifacts/$pkgname.log
             which gpg >> $PWD/artifacts/$pkgname.log
