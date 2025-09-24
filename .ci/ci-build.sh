@@ -132,7 +132,7 @@ for package in "${packages[@]}"; do
             sleep 5
             gpgconf --list-components
             # gpg --version | tee -a $PWD/../artifacts/$pkgname.log 2>&1
-            pacman --version
+            # pacman --version
             # gpg --list-secret-keys | tee -a $PWD/../artifacts/$pkgname.log 2>&1
             # echo "***** Inspect /etc/pacman.conf" | tee -a $PWD/../artifacts/$pkgname.log 2>&1
             # cat /etc/pacman.conf | tee -a $PWD/../artifacts/$pkgname.log 2>&1
