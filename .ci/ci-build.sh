@@ -130,6 +130,7 @@ for package in "${packages[@]}"; do
             # which gpg | tee -a $PWD/../artifacts/$pkgname.log 2>&1
             echo "***** gpg --version" | tee -a $PWD/../artifacts/$pkgname.log 2>&1
             sleep 5
+            gpgconf --list-components
             # gpg --version | tee -a $PWD/../artifacts/$pkgname.log 2>&1
             pacman --version
             # gpg --list-secret-keys | tee -a $PWD/../artifacts/$pkgname.log 2>&1
