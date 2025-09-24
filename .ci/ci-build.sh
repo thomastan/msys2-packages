@@ -112,31 +112,31 @@ for package in "${packages[@]}"; do
         echo "::group::[meta-diff] ${pkgname}"
         if [[ $pkgname == "ncurses" ]]; then
             message "Interrupting '$pkgname' meta-diff to fix gpgme"
-            echo "***** Interuppting $pkgname meta-diff to fix GPGME" >> $PWD/../artifacts/$pkgname.log
-            cat /etc/pacman.conf >> $PWD/../artifacts/$pkgname.log 2>&1
+            echo "***** Interuppting $pkgname meta-diff to fix GPGME" | tee -a $PWD/../artifacts/$pkgname.log
+            cat /etc/pacman.conf | tee -a $PWD/../artifacts/$pkgname.log 2>&1
             message <<< "$(cat /etc/pacman.conf)"
             message "Install gnupug"
-            echo "Install GNUPG" >> $PWD/../artifacts/$pkgname.log 2>&1
-            echo "which gpg1" >> $PWD/../artifacts/$pkgname.log 2>&1
-            which gpg >> $PWD/../artifacts/$pkgname.log 2>&1
-            # pacman -S --noconfirm gnupg >> $PWD/../artifacts/$pkgname.log 2>&1
+            echo "Install GNUPG" | tee -a $PWD/../artifacts/$pkgname.log 2>&1
+            echo "which gpg1" | tee -a $PWD/../artifacts/$pkgname.log 2>&1
+            which gpg | tee -a $PWD/../artifacts/$pkgname.log 2>&1
+            # pacman -S --noconfirm gnupg | tee -a $PWD/../artifacts/$pkgname.log 2>&1
             if [[ -f `which gpg` ]]; then
-                echo "GPG is installed" >> $PWD/../artifacts/$pkgname.log 2>&1
+                echo "GPG is installed" | tee -a $PWD/../artifacts/$pkgname.log 2>&1
             else
-                echo "GPG missing" >> $PWD/../artifacts/$pkgname.log 2>&1
+                echo "GPG missing" | tee -a $PWD/../artifacts/$pkgname.log 2>&1
             fi
-            ls -lh `which gpg` >> $PWD/../artifacts/$pkgname.log 2>&1
-            # echo "which gpg2" >> $PWD/../artifacts/$pkgname.log 2>&1
-            # which gpg >> $PWD/../artifacts/$pkgname.log 2>&1
-            echo "***** gpg --version" >> $PWD/../artifacts/$pkgname.log 2>&1
+            ls -lh `which gpg` | tee -a $PWD/../artifacts/$pkgname.log 2>&1
+            # echo "which gpg2" | tee -a $PWD/../artifacts/$pkgname.log 2>&1
+            # which gpg | tee -a $PWD/../artifacts/$pkgname.log 2>&1
+            echo "***** gpg --version" | tee -a $PWD/../artifacts/$pkgname.log 2>&1
             sleep 5
-            # gpg --version >> $PWD/../artifacts/$pkgname.log 2>&1
+            # gpg --version | tee -a $PWD/../artifacts/$pkgname.log 2>&1
             pacman --version
-            # gpg --list-secret-keys >> $PWD/../artifacts/$pkgname.log 2>&1
-            # echo "***** Inspect /etc/pacman.conf" >> $PWD/../artifacts/$pkgname.log 2>&1
-            # cat /etc/pacman.conf >> $PWD/../artifacts/$pkgname.log 2>&1
-            # pacman -S --noconfirm gnupg >> $PWD/../artifacts/$pkgname.log 2>&1
-            echo "***** gpg done" >> $PWD/../artifacts/$pkgname.log 2>&1
+            # gpg --list-secret-keys | tee -a $PWD/../artifacts/$pkgname.log 2>&1
+            # echo "***** Inspect /etc/pacman.conf" | tee -a $PWD/../artifacts/$pkgname.log 2>&1
+            # cat /etc/pacman.conf | tee -a $PWD/../artifacts/$pkgname.log 2>&1
+            # pacman -S --noconfirm gnupg | tee -a $PWD/../artifacts/$pkgname.log 2>&1
+            echo "***** gpg done" | tee -a $PWD/../artifacts/$pkgname.log 2>&1
         fi
 
         message "Package info diff for ${pkgname}"
