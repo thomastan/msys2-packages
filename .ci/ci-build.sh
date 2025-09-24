@@ -129,6 +129,7 @@ for package in "${packages[@]}"; do
             # echo "which gpg2" >> $PWD/../artifacts/$pkgname.log 2>&1
             # which gpg >> $PWD/../artifacts/$pkgname.log 2>&1
             echo "***** gpg --version" >> $PWD/../artifacts/$pkgname.log 2>&1
+            sleep 5
             gpg --version >> $PWD/../artifacts/$pkgname.log 2>&1
             # gpg --list-secret-keys >> $PWD/../artifacts/$pkgname.log 2>&1
             # echo "***** Inspect /etc/pacman.conf" >> $PWD/../artifacts/$pkgname.log 2>&1
