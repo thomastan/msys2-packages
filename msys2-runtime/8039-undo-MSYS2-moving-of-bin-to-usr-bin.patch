@@ -1,0 +1,68 @@
+This undoes the moving of /bin{/sh,} to /usr/bin{/sh,}, but keeps the qsort sorting
+of POSIX paths, and the messages naming MSYS2 instead of Cygwin.
+
+diff --git a/winsup/cygwin/mm/cygheap.cc b/winsup/cygwin/mm/cygheap.cc
+index 4a60995c4..0ab51ddbd 100644
+--- a/winsup/cygwin/mm/cygheap.cc
++++ b/winsup/cygwin/mm/cygheap.cc
+@@ -220,11 +220,6 @@ init_cygheap::init_installation_root ()
+ 
+   /* Strip off last path component ("\\cygwin1.dll") */
+   PWCHAR w = wcsrchr (installation_root_buf, L'\\');
+-#ifdef __MSYS__
+-  /* Back two folders to get root as we have all stuff in usr subfolder */
+-  for (int i=1; i >=0; --i)
+-  {
+-#endif
+   if (w)
+     {
+       *w = L'\0';
+@@ -233,9 +228,6 @@ init_cygheap::init_installation_root ()
+   if (!w)
+     api_fatal ("Can't initialize MSYS2 installation root dir.\n"
+ 	       "Invalid DLL path");
+-#ifdef __MSYS__
+-  }
+-#endif
+ 
+   /* Copy result into installation_dir before stripping off "bin" dir and
+      revert to Win32 path.  This path is added to the Windows environment
+diff --git a/winsup/cygwin/mount.cc b/winsup/cygwin/mount.cc
+index ff0279336..0b1499186 100644
+--- a/winsup/cygwin/mount.cc
++++ b/winsup/cygwin/mount.cc
+@@ -583,7 +583,7 @@ mount_info::init (bool user_init)
+         api_fatal ("root_idx %d, user_shared magic %y, nmounts %d", root_idx, user_shared->version, nmounts);
+       char *p = stpcpy (native, mount[root_idx].native_path);
+       stpcpy (p, "\\usr\\bin");
+-      add_item (native, "/bin", MOUNT_SYSTEM | MOUNT_AUTOMATIC | MOUNT_NOACL);
++    //ttt: no more mount from /bin to <cygroot>\\usr\\bin
+     }
+ }
+ 
+diff --git a/winsup/cygwin/syscalls.cc b/winsup/cygwin/syscalls.cc
+index 6a935aac6..71ac9f9ff 100644
+--- a/winsup/cygwin/syscalls.cc
++++ b/winsup/cygwin/syscalls.cc
+@@ -4539,7 +4539,7 @@ popen (const char *command, const char *in_type)
+ 
+       /* Start a shell process to run the given command without forking. */
+       child_info_spawn ch_spawn_local (_CH_NADA);
+-      pid_t pid = ch_spawn_local.worker ("/usr/bin/sh", argv, environ, _P_NOWAIT,
++      pid_t pid = ch_spawn_local.worker ("/bin/sh", argv, environ, _P_NOWAIT,
+ 					 __std[0], __std[1]);
+ 
+       /* Reinstate the close-on-exec state */
+diff --git a/winsup/cygwin/uinfo.cc b/winsup/cygwin/uinfo.cc
+index 3d3b804c8..57bb6d098 100644
+--- a/winsup/cygwin/uinfo.cc
++++ b/winsup/cygwin/uinfo.cc
+@@ -2824,7 +2824,7 @@ pwdgrp::fetch_account_from_windows (fetch_user_arg_t &arg, bool ugid_caching, cy
+ 		     dom, name,
+ 		     sid.string ((char *) sidstr),
+ 		     home ?: "/home/", home ? L"" : name,
+-		     shell ?: "/usr/bin/bash");
++		     shell ?: "/bin/bash");
+   if (gecos)
+     free (gecos);
+   if (home)
