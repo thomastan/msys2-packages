@@ -70,7 +70,8 @@ source=('msys2-runtime'::git://sourceware.org/git/newlib-cygwin.git#tag=cygwin-$
         0038-Cygwin-Adjust-CWD-magic-to-accommodate-for-the-lates.patch
         8039-undo-MSYS2-moving-of-bin-to-usr-bin.patch
         8040-default-cygdrive-prefix-to-slash-not-slash-cygrdive.patch
-        8041-add-default-mount-entry-for-tmp-to-windows-temp-dir.patch)
+        8041-add-default-mount-entry-for-tmp-to-windows-temp-dir.patch
+        8042-default-db_home-as-env-instead-of-in-root-home.patch)
 sha256sums=('ce144fea2ed9896fc950e811a52ea384d55bad7804b703c1a483b53ae8def0c6'
             '3f28ddc369e78e1cab3cb3ea575ec8b403fb1366e599d1646bbd38a8545ad28e'
             'fd5fca07f5febedd4be73af01613847568aec1e6dd1f0aa39658f9c946ae2812'
@@ -113,7 +114,8 @@ sha256sums=('ce144fea2ed9896fc950e811a52ea384d55bad7804b703c1a483b53ae8def0c6'
             '15541ccdf894510421b22a6bc901d1fb8da278a4101435b4a7b1ec2a211f84e2'
             'e37bf65e3c66b25034d3cf605245758fe5ada9b9715293cad8f6130105a63c63'
             '1779c5b1ea021209681093bed11d5c0d478a7ff04c76e6d556ae533b44c84116'
-            '1b020944ef4497ff8ecd5eaf542651d217c656c0d7bc271a1b66b09cfdf94d75')
+            '1b020944ef4497ff8ecd5eaf542651d217c656c0d7bc271a1b66b09cfdf94d75'
+            '4187b2dd3b8b488f00db862a59cbd77d0252f6d8869e51c3da7b4197bdc89c8b')
 
 # Helper macros to help make tasks easier #
 apply_patch_with_msg() {
@@ -192,7 +194,8 @@ prepare() {
   0038-Cygwin-Adjust-CWD-magic-to-accommodate-for-the-lates.patch \
   8039-undo-MSYS2-moving-of-bin-to-usr-bin.patch \
   8040-default-cygdrive-prefix-to-slash-not-slash-cygrdive.patch \
-  8041-add-default-mount-entry-for-tmp-to-windows-temp-dir.patch
+  8041-add-default-mount-entry-for-tmp-to-windows-temp-dir.patch \
+  8042-default-db_home-as-env-instead-of-in-root-home.patch
 }
 
 build() {
