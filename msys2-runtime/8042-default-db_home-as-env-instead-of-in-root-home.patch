@@ -1,0 +1,28 @@
+This defaults the db_home setting when none is specified in nsswitch.conf to follow
+the "env" setting, of trying: HOME env first, then HomeDrive+HomePath, then %UserProfile%.
+The previous behavior was to default to: /home/<username>
+
+diff --git a/winsup/cygwin/uinfo.cc b/winsup/cygwin/uinfo.cc
+index 57bb6d0..2099eb4 100644
+--- a/winsup/cygwin/uinfo.cc
++++ b/winsup/cygwin/uinfo.cc
+@@ -328,6 +328,7 @@ cuserid (char *src)
+   return src;
+ }
+ 
++static char * fetch_home_env (void);  // forward declaration
+ const char *
+ cygheap_user::ontherange (homebodies what, struct passwd *pw)
+ {
+@@ -347,8 +348,9 @@ cygheap_user::ontherange (homebodies what, struct passwd *pw)
+ 	{
+ 	  if (pw && pw->pw_dir && *pw->pw_dir)
+ 	    {
+-	      debug_printf ("Set HOME (from account db) to %s", pw->pw_dir);
+-	      setenv ("HOME", pw->pw_dir, 1);
++	      debug_printf ("Set HOME to default: %HOME% > %HomeDrive%+%HomePath% > %%UserProfile%");
++	      if ((p = fetch_home_env ()))  // Prefer the 'env' method
++		setenv ("HOME", p, 1);  // Windows %HOME%, then HomeDrive HomePath, then UserProfile
+ 	    }
+ 	  else
+ 	    {
