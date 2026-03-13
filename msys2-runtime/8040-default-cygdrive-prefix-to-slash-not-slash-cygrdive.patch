@@ -1,0 +1,18 @@
+By default, we prefer to access drives on Windows (C:, D:, E:\, etc.) the MSYS2
+way /c, /d, /e/ instead of the Cygwin ways /cygdrive/c, /cygdrive/d, /cygdrive/e/
+
+diff --git a/winsup/cygwin/mount.cc b/winsup/cygwin/mount.cc
+index 0b14991..84495fe 100644
+--- a/winsup/cygwin/mount.cc
++++ b/winsup/cygwin/mount.cc
+@@ -557,7 +557,9 @@ mount_info::create_root_entry (const PWCHAR root)
+      This allows to override it with mount, unless the sysadmin created
+      a cygdrive entry in /etc/fstab. */
+   cygdrive_flags = MOUNT_NOPOSIX | MOUNT_CYGDRIVE | MOUNT_NOACL;
+-  strcpy (cygdrive, CYGWIN_INFO_CYGDRIVE_DEFAULT_PREFIX "/");
++  strcpy (cygdrive, /*CYGWIN_INFO_CYGDRIVE_DEFAULT_PREFIX*/ "/");
++  // this change prefers the "base" leading prefix of / instead of /cygdrive:
++  //  e.g. use /c for C:\ instead of /cygdrive/c
+   cygdrive_len = strlen (cygdrive);
+ }
+ 
