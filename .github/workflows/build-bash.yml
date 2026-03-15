@@ -1,0 +1,107 @@
+name: Build msys2-bash
+
+on:
+  push:
+    paths:
+      - 'msys2-packages/ncurses/**'
+      - 'msys2-packages/bash/**'
+      - 'msys2-packages/msys2-runtime/**'
+      - '.github/workflows/build-bash.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install MSYS2 (MSYS environment)
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MSYS
+          update: true
+          install: >-
+            base-devel
+            git
+            make
+            patch
+            gcc
+            mingw-w64-cross-crt
+            mingw-w64-cross-gcc
+            autotools
+            gettext-devel
+            libiconv-devel
+            zlib-devel
+
+      - name: Build ncurses
+        shell: msys2 {0}
+        run: |
+          cd ncurses
+          gpg --recv-keys CC2AF4472167BE03
+          makepkg --syncdeps --noconfirm --install
+          # --noconfirm gets passed onto pacman for installation of deps during --syncdeps installations
+          # --install to install this custom-patched ncurses for use by bash (next step)
+
+      - name: Build bash
+        shell: msys2 {0}
+        run: |
+          cd bash
+          gpg --recv-keys BB5869F064EA74AB
+          makepkg --syncdeps --noconfirm
+
+      - name: Prepare artifacts
+        shell: msys2 {0}
+        run: |
+          mkdir -p artifacts/bin/
+          cp ./bash/pkg/bash/usr/bin/bash.exe artifacts/bin/
+
+          destdir="artifacts/etc/terminfo"
+          mkdir -p $destdir
+
+          # copy only a subset of all terminfo files
+          FILES=(cygwin
+                 mintty{,+common,-direct}
+                 xterm{,-256color})
+          for i in "${FILES[@]}"; do
+            # get the ascii value of the first character of i (e.g. cygwin -> 'c' -> 63)
+            subdir=$(printf "%x" "'${i:0:1}")  # single-quote cuz printf expects a char, not a variable name
+
+            mkdir -p $destdir/$subdir
+            cp ./ncurses/pkg/ncurses/usr/share/terminfo/$subdir/$i $destdir/$subdir/
+          done
+
+          # also include the full bash & ncurses packages among the artifacts
+          cp ./bash/bash-*.pkg.tar.zst artifacts/
+          cp ./ncurses/ncurses-*.pkg.tar.zst artifacts/
+
+      - name: Upload artifact - just bash
+        uses: actions/upload-artifact@v6
+        with:
+          name: msys2-bash
+          path: artifacts/*
+          if-no-files-found: warn
+
+      - name: Building msys2-runtime for bundling
+        shell: msys2 {0}
+        run: |
+          cd msys2-runtime
+          makepkg --syncdeps --noconfirm
+          # --syncdeps cuz few more dependencies needed for msys2-runtime that ncurses and bash didn't have:
+          # mingw-w64-cross-zlib xmlto docbook-xsl cocom
+
+      - name: Add the msys2-runtime .dll, mount and cygpath.exe and full packages to artifacts
+        shell: msys2 {0}
+        run: |
+          cp ./msys2-runtime/msys2-runtime-*.pkg.tar.zst artifacts/
+          cp ./msys2-runtime/pkg/msys2-runtime/usr/bin/msys-2.0.dll artifacts/bin/
+          cp ./msys2-runtime/pkg/msys2-runtime/usr/bin/cygpath.exe artifacts/bin/
+          cp ./msys2-runtime/pkg/msys2-runtime/usr/bin/cygwin-console-helper.exe artifacts/bin/
+
+      # bash + runtime
+      - name: Upload artifact - bash + msys-2.0.dll (with helper .exe's)
+        uses: actions/upload-artifact@v6
+        with:
+          name: msys2-bash+runtime
+          path: artifacts/*
+
