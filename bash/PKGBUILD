@@ -6,7 +6,7 @@ pkgname=('bash' 'bash-devel')
 _basever=5.3
 _patchlevel=009 #prepare for some patches
 pkgver=${_basever}.${_patchlevel}
-pkgrel=1
+pkgrel=2
 pkgdesc="The GNU Bourne Again shell"
 arch=('i686' 'x86_64')
 license=('GPL')
@@ -28,7 +28,8 @@ source=(https://ftp.gnu.org/gnu/bash/bash-${_basever}.tar.gz{,.sig}
         0002-bash-4.3-msysize.patch
         0005-bash-4.3-msys2-fix-lineendings.patch
         0006-bash-4.3-add-pwd-W-option.patch
-        0007-fix-static-build.patch)
+        0007-fix-static-build.patch
+        8008-bash-xdg-support.patch)
 if [ $_patchlevel -gt 000 ]; then
   for (( p=1; p<=$((10#${_patchlevel})); p++ )); do
     source=(${source[@]} https://ftp.gnu.org/gnu/bash/bash-${_basever}-patches/bash${_basever//./}-$(printf "%03d" $p){,.sig})
@@ -55,6 +56,7 @@ prepare() {
   patch -p1 -i ${srcdir}/0005-bash-4.3-msys2-fix-lineendings.patch
   patch -p1 -i ${srcdir}/0006-bash-4.3-add-pwd-W-option.patch
   patch -p1 -i ${srcdir}/0007-fix-static-build.patch
+  patch -p1 -i ${srcdir}/8008-bash-xdg-support.patch
 
   autoconf
 }
@@ -149,6 +151,7 @@ sha256sums=('0d5cd86965f869a26cf64f4b71be7b96f90a3ba8b3d74e27e8e9d9d5550f31ba'
             '3c33be8d7363b00189309353f3fcdedfb7c7082c4a1cedbcc76a36fd0a8af8a8'
             'e123c1ef06499405f055d6c920cf267258d7ab3d59d6036e1ee2b5b0edd81ad2'
             'f70394dfe8afd8be94a8358732c4e55b4af069cb40555d1375f2dadee7554797'
+            '54f50b068497390d3992fb462e5992edc56ca6711963b8100d5d1c915d7f437d'
             '1f608434364af86b9b45c8b0ea3fb3b165fb830d27697e6cdfc7ac17dee3287f'
             'SKIP'
             'e385548a00130765ec7938a56fbdca52447ab41fabc95a25f19ade527e282001'
