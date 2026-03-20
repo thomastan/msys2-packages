@@ -1,15 +1,14 @@
-name: Build and Release msys2-bash
+name: Build and Release msys2-bash (xdg patched)
 
 on:
   push:
     branches: [ xdg-patched ]
-    # Only trigger if files in these specific directories change
     paths:
       - 'msys2-packages/ncurses/**'
       - 'msys2-packages/bash/**'
       - 'msys2-packages/msys2-runtime/**'
       - '.github/workflows/build-bash.yml'
-  workflow_dispatch: # Keeps the manual 'Run' button available
+  workflow_dispatch:
 
 jobs:
   build-and-release:
@@ -25,30 +24,25 @@ jobs:
         with:
           msystem: MSYS
           update: true
-          # Lean install: core dev tools only
           install: base-devel git make patch gcc autotools gettext-devel libiconv-devel zlib-devel
 
       - name: Build bash
         shell: msys2 {0}
         run: |
-          # Use the path relative to your repo root
-          cd msys2-packages/bash
-          
-          # Build the package
+          cd bash
+          gpg --recv-keys BB5869F064EA74AB
           makepkg --syncdeps --noconfirm
-          
-          # Capture the filename (filtering out debug/devel sub-packages)
-          FULL_PATH=$(ls bash-*.pkg.tar.zst | grep -vE "devel|debug" | head -n 1)
+
+          FULL_PATH=$(ls bash-*.pkg.tar.zst | grep -vE "devel" | head -n 1)
           PKG_NAME=$(basename $FULL_PATH)
-          
-          # Export variables for the next step
+
+          # Export variables for the release step
           echo "BASH_PKG_NAME=$PKG_NAME" >> $GITHUB_ENV
-          echo "BASH_PKG_PATH=msys2-packages/bash/$PKG_NAME" >> $GITHUB_ENV
+          echo "BASH_PKG_PATH=bash/$PKG_NAME" >> $GITHUB_ENV
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          # Using the filename as both the Tag and the Title
           tag_name: ${{ env.BASH_PKG_NAME }}
           name: ${{ env.BASH_PKG_NAME }}
           files: ${{ env.BASH_PKG_PATH }}
