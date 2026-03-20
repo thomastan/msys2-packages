@@ -1,62 +1,55 @@
-name: Build msys2-bash
+name: Build and Release msys2-bash
 
 on:
   push:
+    branches: [ xdg-patched ]
+    # Only trigger if files in these specific directories change
     paths:
       - 'msys2-packages/ncurses/**'
       - 'msys2-packages/bash/**'
       - 'msys2-packages/msys2-runtime/**'
       - '.github/workflows/build-bash.yml'
-  workflow_dispatch:
+  workflow_dispatch: # Keeps the manual 'Run' button available
 
 jobs:
-  build:
+  build-and-release:
     runs-on: windows-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
-      - name: Install MSYS2 (MSYS environment)
+      - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
           msystem: MSYS
           update: true
-          install: >-
-            base-devel
-            git
-            make
-            patch
-            gcc
-            mingw-w64-cross-crt
-            mingw-w64-cross-gcc
-            autotools
-            gettext-devel
-            libiconv-devel
-            zlib-devel
-
-      - name: Build ncurses
-        shell: msys2 {0}
-        run: |
-          cd ncurses
-          gpg --recv-keys CC2AF4472167BE03
-          makepkg --syncdeps --noconfirm --install
+          # Lean install: core dev tools only
+          install: base-devel git make patch gcc autotools gettext-devel libiconv-devel zlib-devel
 
       - name: Build bash
         shell: msys2 {0}
         run: |
-          cd bash
-          gpg --recv-keys BB5869F064EA74AB
+          # Use the path relative to your repo root
+          cd msys2-packages/bash
+          
+          # Build the package
           makepkg --syncdeps --noconfirm
+          
+          # Capture the filename (filtering out debug/devel sub-packages)
+          FULL_PATH=$(ls bash-*.pkg.tar.zst | grep -vE "devel|debug" | head -n 1)
+          PKG_NAME=$(basename $FULL_PATH)
+          
+          # Export variables for the next step
+          echo "BASH_PKG_NAME=$PKG_NAME" >> $GITHUB_ENV
+          echo "BASH_PKG_PATH=msys2-packages/bash/$PKG_NAME" >> $GITHUB_ENV
 
-          # capture filename and path
-          FULL_PATH=$(ls bash-*.pkg.tar.zst | grep -vE "devel" | head -n 1)
-          echo "BASH_PKG_NAME=$(basename $FULL_PATH)" >> $GITHUB_ENV
-          echo "BASH_PKG_PATH=$FULL_PATH" >> $GITHUB_ENV
-
-      - name: Upload artifact - just bash
-        uses: actions/upload-artifact@v6
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
         with:
-          # e.g. bash-5.3.009-1-x86_64.pkg.tar.zst
+          # Using the filename as both the Tag and the Title
+          tag_name: ${{ env.BASH_PKG_NAME }}
           name: ${{ env.BASH_PKG_NAME }}
-          path: bash/${{ env.BASH_PKG_NAME }}
-          if-no-files-found: error
+          files: ${{ env.BASH_PKG_PATH }}
+
