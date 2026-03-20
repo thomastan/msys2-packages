@@ -1,0 +1,62 @@
+name: Build msys2-bash
+
+on:
+  push:
+    paths:
+      - 'msys2-packages/ncurses/**'
+      - 'msys2-packages/bash/**'
+      - 'msys2-packages/msys2-runtime/**'
+      - '.github/workflows/build-bash.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install MSYS2 (MSYS environment)
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MSYS
+          update: true
+          install: >-
+            base-devel
+            git
+            make
+            patch
+            gcc
+            mingw-w64-cross-crt
+            mingw-w64-cross-gcc
+            autotools
+            gettext-devel
+            libiconv-devel
+            zlib-devel
+
+      - name: Build ncurses
+        shell: msys2 {0}
+        run: |
+          cd ncurses
+          gpg --recv-keys CC2AF4472167BE03
+          makepkg --syncdeps --noconfirm --install
+
+      - name: Build bash
+        shell: msys2 {0}
+        run: |
+          cd bash
+          gpg --recv-keys BB5869F064EA74AB
+          makepkg --syncdeps --noconfirm
+
+          # capture filename and path
+          FULL_PATH=$(ls bash-*.pkg.tar.zst | grep -vE "devel" | head -n 1)
+          echo "BASH_PKG_NAME=$(basename $FULL_PATH)" >> $GITHUB_ENV
+          echo "BASH_PKG_PATH=$FULL_PATH" >> $GITHUB_ENV
+
+      - name: Upload artifact - just bash
+        uses: actions/upload-artifact@v6
+        with:
+          # e.g. bash-5.3.009-1-x86_64.pkg.tar.zst
+          name: ${{ env.BASH_PKG_NAME }}
+          path: bash/${{ env.BASH_PKG_NAME }}
+          if-no-files-found: error
