@@ -1,0 +1,23 @@
+diff --git a/shell.c b/shell.c
+index 6d6f71d..5060908 100644
+--- a/shell.c
++++ b/shell.c
+@@ -1148,7 +1148,17 @@ find_bash_user_file (fname, xdgvar, xdgdef)
+     xdgdef = bash_tilde_expand (xdgdef, 0);
+     len = asprintf(&xdg_path, "%s/bash/%s", cfg_env && cfg_env[0] == '/'
+ 	? cfg_env : xdgdef, fname);
+-    return stat (xdg_path, &sb) ? legacy_path : xdg_path;
++    //return stat (xdg_path, &sb) ? legacy_path : xdg_path;
++    printf("Checking XDG file: %s\n", xdg_path);  // DEBUG
++    if (stat (xdg_path, &sb) == 0)
++      {
++        printf("Using XDG file: %s\n", xdg_path);
++        return xdg_path;
++      }
++    printf("Falling back to legacy file: %s\n", legacy_path);
++    return legacy_path;
++    // END NEW DEBUG
++
+   } else
+     return legacy_path;
+ }
