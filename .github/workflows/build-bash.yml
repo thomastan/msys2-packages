@@ -7,6 +7,9 @@ on:
       - 'msys2-packages/ncurses/**'
       - 'msys2-packages/bash/**'
       - 'msys2-packages/msys2-runtime/**'
+      - 'ncurses/**'
+      - 'bash/**'
+      - 'msys2-runtime/**'
       - '.github/workflows/build-bash.yml'
   workflow_dispatch:
 
